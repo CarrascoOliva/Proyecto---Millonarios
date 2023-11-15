@@ -8,6 +8,9 @@ const calculateWealthBtn = document.getElementById('calculate-wealth');
 // Vector para almacenar los usuarios
 let userList = [];
 
+// Variable para almacenar el total de dinero
+let wealth = 0;
+
 // Función que obtiene de la API un nombre aleatorio,
 // genera una cantidad de dinero aleatoria cuyo máximo es 1.000.000
 // y añade al usuario con ambos datos
@@ -29,7 +32,7 @@ async function getRandomUser() {
 function addData(obj) {
   userList.push(obj);
   updateDOM();
-  console.log(userList);
+  saveToLocalStorage(); // Guardamos los datos en LocalStorage
 
 }
 
@@ -39,7 +42,7 @@ function doubleMoney() {
     user.money *= 2;
   });
   updateDOM();
-  console.log(userList);
+  saveToLocalStorage(); // Guardamos los datos en LocalStorage
 
   // TIP: Puedes usar map()
 }
@@ -48,9 +51,8 @@ function doubleMoney() {
 function sortByRichest() {
   userList.sort((a, b) => b.money - a.money);
   updateDOM();
-  console.log(userList);
-
-
+  saveToLocalStorage(); // Guardamos los datos en LocalStorage
+  
   // TIP: Puedes usar sort()
 }
 
@@ -58,7 +60,7 @@ function sortByRichest() {
 function showMillionaires() {
   userList = userList.filter(user => user.money > 1000000);
   updateDOM();
-  console.log(userList);
+  saveToLocalStorage(); // Guardamos los datos en LocalStorage
 
   // TIP: Puedes usar filter()
 }
@@ -66,9 +68,10 @@ function showMillionaires() {
 // TODO: Función que calcula y muestra el dinero total de todos los usuarios
 // TIP: Puedes usar reduce ()
 function calculateWealth() {
-  let wealth = userList.reduce((total, user) => total + user.money, 0);
+  wealth = userList.reduce((total, user) => total + user.money, 0);
   main.innerHTML += `<h3>El dinero total es: ${formatMoney(wealth)}</h3>`;
   calculateWealthBtn.removeEventListener('click', calculateWealth);
+  saveToLocalStorage(); // Guardamos los datos en LocalStorage
 }
 
 // TODO: Función que actualiza el DOM
@@ -77,12 +80,8 @@ function updateDOM() {
     main.removeChild(main.lastChild);
   }
   userList.forEach(user => {
-    main.innerHTML += `<p class="name">${user.name}: ${formatMoney(user.money)}</p>`;
-    console.log(user.money);
-    console.log(user.name);
-    console.log(main.innerHTML);
-    console.log(userList);
-    console.log(user);
+    main.innerHTML += `<p class="person">${user.name}: ${formatMoney(user.money)}</p>`;
+    
   });
   calculateWealthBtn.addEventListener('click', calculateWealth);
 
@@ -95,9 +94,36 @@ function formatMoney(number) {
 
 }
 
+// Función que guarda el listado de usuarios y el total de dinero en LocalStorage
+function saveToLocalStorage() {
+  localStorage.setItem('userList', JSON.stringify(userList));
+  localStorage.setItem('wealth', wealth);
+  console.log('Datos guardados en LocalStorage:', userList,'total', wealth);
+}
 
-// Obtenemos un usuario al iniciar la app
-getRandomUser();
+// Función que recupera el listado de usuarios y el total de dinero de LocalStorage
+function loadFromLocalStorage() {
+  let userListString = localStorage.getItem('userList');
+  let wealthString = localStorage.getItem('wealth');
+  if (userListString && wealthString) {
+    userList = JSON.parse(userListString);
+    wealth = Number(wealthString);
+    console.log('Datos recuperados de LocalStorage:', userList ,'total', wealth);
+    updateDOM();
+    if (wealth > 0) {
+      main.innerHTML += `<h3>El dinero total es: ${formatMoney(wealth)}</h3>`;
+      calculateWealthBtn.removeEventListener('click', calculateWealth);
+    }
+  }
+}
+
+// Recuperamos los datos de LocalStorage al iniciar la app
+loadFromLocalStorage();
+
+// Obtenemos un usuario al iniciar la app si no hay datos guardados
+if (userList.length === 0) {
+  getRandomUser();
+}
 
 // TODO: Event listeners
 addUserBtn.addEventListener('click', getRandomUser);
