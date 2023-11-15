@@ -98,7 +98,6 @@ function formatMoney(number) {
 function saveToLocalStorage() {
   localStorage.setItem('userList', JSON.stringify(userList));
   localStorage.setItem('wealth', wealth);
-  console.log('Datos guardados en LocalStorage:', userList,'total', wealth);
 }
 
 // Función que recupera el listado de usuarios y el total de dinero de LocalStorage
@@ -108,7 +107,7 @@ function loadFromLocalStorage() {
   if (userListString && wealthString) {
     userList = JSON.parse(userListString);
     wealth = Number(wealthString);
-    console.log('Datos recuperados de LocalStorage:', userList ,'total', wealth);
+    ;
     updateDOM();
     if (wealth > 0) {
       main.innerHTML += `<h3>El dinero total es: ${formatMoney(wealth)}</h3>`;
